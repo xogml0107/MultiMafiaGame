@@ -1,0 +1,6 @@
+{
+  "name": "ZZabmongus.PlayModeTests",
+  "rootNamespace": "ZZabmongus.Tests",
+  "references": ["ZZabmongus.Core", "ZZabmongus.Runtime", "ZZabmongus.Networking", "PurrNet.Runtime", "Unity.ugui", "Unity.TextMeshPro"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

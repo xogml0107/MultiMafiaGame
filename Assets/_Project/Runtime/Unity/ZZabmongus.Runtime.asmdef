@@ -1,0 +1,5 @@
+{
+  "name": "ZZabmongus.Runtime",
+  "rootNamespace": "ZZabmongus.Runtime",
+  "references": ["ZZabmongus.Core", "Unity.InputSystem", "Unity.ugui", "Unity.TextMeshPro"]
+}

@@ -1,0 +1,65 @@
+# Unity-generated caches and local editor settings
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Uu]ser[Ss]ettings/
+
+# Build output, logs, tests and profiler captures
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Aa]rtifacts/
+/[Tt]est[Rr]esults/
+/[Tt]est[Rr]esult*/
+/[Mm]emory[Cc]aptures/
+/[Rr]ecordings/
+*.apk
+*.aab
+*.unitypackage
+
+# IDE caches and Unity-generated project/solution files
+.vs/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+*.opendb
+*.VC.db
+*.DotSettings.user
+[Bb]in/
+[Oo]bj/
+.history/
+
+# Keep shared VS Code configuration
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Local Steam development configuration
+/steam_appid.txt
+
+# OS metadata and crash reports
+.DS_Store
+Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.stackdump
+/sysinfo.txt
+
+# Assets and their .meta files, native plugins, ProjectSettings,
+# Packages/manifest.json and Packages/packages-lock.json must remain trackable.
+# Do not blanket-ignore Packages/, *.meta, *.dll, *.so, *.dylib or *.a.

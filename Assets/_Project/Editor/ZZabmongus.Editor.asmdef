@@ -1,0 +1,6 @@
+{
+  "name": "ZZabmongus.Editor",
+  "rootNamespace": "ZZabmongus.Editor",
+  "references": ["ZZabmongus.Core", "ZZabmongus.Runtime", "ZZabmongus.Networking", "PurrNet.Runtime", "PurrNet.Steam.Runtime", "Unity.TextMeshPro"],
+  "includePlatforms": ["Editor"]
+}

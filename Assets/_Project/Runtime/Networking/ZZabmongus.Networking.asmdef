@@ -1,0 +1,6 @@
+{
+  "name": "ZZabmongus.Networking",
+  "rootNamespace": "ZZabmongus.Networking",
+  "references": ["PurrNet.Runtime", "PurrNet.Steam.Runtime", "com.rlabrecque.steamworks.net", "Unity.InputSystem", "Unity.ugui", "Unity.TextMeshPro"],
+  "includePlatforms": ["Editor", "WindowsStandalone64", "WindowsStandalone32", "LinuxStandalone64", "macOSStandalone"]
+}

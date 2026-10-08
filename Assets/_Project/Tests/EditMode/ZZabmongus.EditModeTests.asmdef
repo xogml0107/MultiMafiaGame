@@ -1,0 +1,7 @@
+{
+  "name": "ZZabmongus.EditModeTests",
+  "rootNamespace": "ZZabmongus.Tests",
+  "references": ["ZZabmongus.Core"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}
