@@ -13,7 +13,7 @@ namespace ZZabmongus.Editor
 {
     public static class SandboxBuilder
     {
-        public const string ScenePath = "Assets/_Project/Scenes/FoundationSandbox.unity";
+        public const string ScenePath = "Assets/Scenes/FoundationSandbox.unity";
         private static double fontDeadline;
         private static bool waitingForFonts;
 
@@ -64,9 +64,9 @@ namespace ZZabmongus.Editor
                 if (Application.isBatchMode) EditorApplication.Exit(0);
                 return;
             }
-            Directory.CreateDirectory("Assets/_Project/Scenes");
-            Directory.CreateDirectory("Assets/_Project/Settings");
-            Directory.CreateDirectory("Assets/_Project/Art/Materials");
+            Directory.CreateDirectory("Assets/Scenes");
+            Directory.CreateDirectory("Assets/Settings");
+            Directory.CreateDirectory("Assets/Art/Materials");
             AssetDatabase.Refresh();
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var camera = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener)).GetComponent<Camera>();
@@ -96,11 +96,11 @@ namespace ZZabmongus.Editor
             Station(DeviceKind.Precision, new Vector3(8, 0.5f, -5), new Color(0.95f, 0.45f, 0.65f), camera);
             var relay = Station(DeviceKind.Parity, new Vector3(0, 0.5f, 6), new Color(0.5f, 0.9f, 0.45f), camera, true);
             relay.gameObject.name = "CooperativeRelay";
-            var settings = AssetDatabase.LoadAssetAtPath<SandboxSettings>("Assets/_Project/Settings/SandboxSettings.asset");
+            var settings = AssetDatabase.LoadAssetAtPath<SandboxSettings>("Assets/Settings/SandboxSettings.asset");
             if (settings == null)
             {
                 settings = ScriptableObject.CreateInstance<SandboxSettings>();
-                AssetDatabase.CreateAsset(settings, "Assets/_Project/Settings/SandboxSettings.asset");
+                AssetDatabase.CreateAsset(settings, "Assets/Settings/SandboxSettings.asset");
             }
             var bootstrap = new GameObject("LocalSandbox").AddComponent<LocalSandbox>();
             bootstrap.Configure(settings);
@@ -112,7 +112,7 @@ namespace ZZabmongus.Editor
 
         private static Material Material(string name, Color color)
         {
-            var path = "Assets/_Project/Art/Materials/" + name + ".mat";
+            var path = "Assets/Art/Materials/" + name + ".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material != null) return material;
             material = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = name, color = color };

@@ -2,7 +2,7 @@
 
 게임 기획서 v0.4를 바탕으로 만든 기초입니다. 규칙 검증용 **FoundationSandbox**와 PurrNet 연결/이동 검증용 **MultiplayerBase**를 분리했습니다.
 
-멀티 실행은 `ZZabmongus > Create or Open Multiplayer Base` 메뉴 또는 `Assets/_Project/Scenes/MultiplayerBase.unity`에서 시작합니다. 호스트는 CREATE ROOM, 참가자는 호스트 IP/포트를 입력하고 JOIN ROOM을 누릅니다. Windows 테스트 빌드 메뉴도 제공됩니다. 자세한 실행/Steam 설정은 [Docs/MultiplayerBase.md](Docs/MultiplayerBase.md)를 참고하세요.
+멀티 실행은 `ZZabmongus > Create or Open Multiplayer Base` 메뉴 또는 `Assets/Scenes/MultiplayerBase.unity`에서 시작합니다. 국가를 선택하면 해당 국가의 Steam 방 목록을 표시합니다. 이름·공개 여부·비밀번호·정원으로 방을 만들고, 방을 더블 클릭해 입장합니다. 잠금 표시, 비밀번호 확인, 정원 초과 팝업을 포함합니다. 자세한 실행/Steam 설정은 [Docs/MultiplayerBase.md](Docs/MultiplayerBase.md)를 참고하세요.
 
 **패키지 추가·업데이트 전에는 항상 사용자에게 물어봅니다.** 이번 멀티 베이스에는 패키지를 추가하지 않았습니다.
 
@@ -10,7 +10,7 @@
 
 1. Unity 6000.3.22f1에서 이 프로젝트를 엽니다.
 2. `ZZabmongus > Create or Open Foundation Sandbox`를 선택합니다.
-3. `Assets/_Project/Scenes/FoundationSandbox.unity`에서 Play를 누릅니다.
+3. `Assets/Scenes/FoundationSandbox.unity`에서 Play를 누릅니다.
 4. 기본 8명의 가상 플레이어를 Tab으로 번갈아 조종합니다. 다른 PC의 플레이어가 아닙니다.
 
 씬 생성기는 기존 씬을 덮어쓰지 않습니다. 열려 있는 씬에 저장하지 않은 변경이 있으면 먼저 저장해야 합니다. 테스트 씬은 배포 빌드의 씬 목록에 자동 추가하지 않습니다.
@@ -28,7 +28,7 @@
 | 후보 숫자 버튼 | 현재 플레이어의 개인 후보 메모 |
 | Restart same seed | 같은 설정/시드로 재시작 |
 
-설정은 `Assets/_Project/Settings/SandboxSettings.asset`에서 인원(4~12), 시드, 이동 속도, 장치 재사용 대기시간, 최소 포인트 주기를 변경합니다. 인원 변경은 Play 종료 후 적용하세요. HUD는 개발용 영문 UI이며 한국어 폰트/현지화는 후속 작업입니다.
+설정은 `Assets/Settings/SandboxSettings.asset`에서 인원(4~12), 시드, 이동 속도, 장치 재사용 대기시간, 최소 포인트 주기를 변경합니다. 인원 변경은 Play 종료 후 적용하세요. 샌드박스 HUD는 개발용 영문 UI입니다. Steam 로비와 대기실은 한글 표시용 Noto Sans KR 글꼴을 사용합니다.
 
 ## 구현된 범위
 
@@ -63,7 +63,7 @@
 ## 구조와 다음 작업
 
 ```text
-Assets/_Project/
+Assets/
   Runtime/Core/       순수 C# 권위 상태, 시간, 포섭, 단서, 판정
   Runtime/Unity/      로컬 테스트 어댑터, 이동, 장치, uGUI HUD
   Runtime/Networking/ PurrNet 연결, 대기실, 플레이어, 서버 이동, Steam 수명 관리
@@ -87,6 +87,8 @@ Assets/_Project/
 ## 검증
 
 Unity 메뉴 `Window > General > Test Runner`에서 실행합니다.
+
+**에이전트는 사용자가 별도로 지시하지 않으면 에디터 Play 모드가 필요한 테스트를 실행하지 않습니다.** 2026-10-09 EditMode 63개가 통과했습니다. 이번 로비 작업의 검증 결과와 PlayMode 재검증 제한은 [Docs/MultiplayerBase.md](Docs/MultiplayerBase.md)에 기록했습니다.
 
 2026-10-08, Unity 6000.3.22f1 + PurrNet 1.24.1 + Steamworks.NET 2025.164.1 환경의 검증 결과:
 

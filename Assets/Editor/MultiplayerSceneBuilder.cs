@@ -15,8 +15,8 @@ namespace ZZabmongus.Editor
 {
     public static class MultiplayerSceneBuilder
     {
-        public const string ScenePath = "Assets/_Project/Scenes/MultiplayerBase.unity";
-        private const string PrefabPath = "Assets/_Project/Prefabs/NetworkPlayer.prefab";
+        public const string ScenePath = "Assets/Scenes/MultiplayerBase.unity";
+        private const string PrefabPath = "Assets/Prefabs/NetworkPlayer.prefab";
 
         [MenuItem("ZZabmongus/Create or Open Multiplayer Base")]
         public static void CreateOrOpen()
@@ -25,10 +25,10 @@ namespace ZZabmongus.Editor
             for (var i = 0; i < SceneManager.sceneCount; i++)
                 if (SceneManager.GetSceneAt(i).isDirty) throw new InvalidOperationException("Save modified scenes first.");
             if (!TMP_Settings.defaultFontAsset) throw new InvalidOperationException("Import TMP Essential Resources first.");
-            if (File.Exists(ScenePath)) { EditorSceneManager.OpenScene(ScenePath); return; }
-            Directory.CreateDirectory("Assets/_Project/Prefabs");
-            Directory.CreateDirectory("Assets/_Project/Settings");
-            Directory.CreateDirectory("Assets/_Project/Art/Materials");
+            if (File.Exists(ScenePath)) { EditorSceneManager.OpenScene(ScenePath); CountryLobbySetup.ConfigureOpenScene(); return; }
+            Directory.CreateDirectory("Assets/Prefabs");
+            Directory.CreateDirectory("Assets/Settings");
+            Directory.CreateDirectory("Assets/Art/Materials");
             AssetDatabase.Refresh();
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var camera = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener), typeof(MultiplayerCamera)).GetComponent<Camera>();
@@ -57,7 +57,7 @@ namespace ZZabmongus.Editor
             prefabs.autoGenerate = false; prefabs.searchAllIfNoFolder = false;
             prefabs.prefabs.Add(new NetworkPrefabs.UserPrefabData { prefab = playerPrefab,
                 guid = AssetDatabase.AssetPathToGUID(PrefabPath), pooled = false });
-            AssetDatabase.CreateAsset(prefabs, "Assets/_Project/Settings/MultiplayerPrefabs.asset");
+            AssetDatabase.CreateAsset(prefabs, "Assets/Settings/MultiplayerPrefabs.asset");
             prefabs.Refresh();
             var rules = ScriptableObject.CreateInstance<NetworkRules>();
             Set(rules, "_hostMigrationRules.migrateAsHost", false);
@@ -70,7 +70,7 @@ namespace ZZabmongus.Editor
             Set(rules, "_defaultTransformRules.changeParentAuth", (int)ActionAuth.Server);
             Set(rules, "_defaultSceneRules.removePlayerFromSceneOnDisconnect", true);
             Set(rules, "_defaultSceneRules.sceneCleanupModeOnDisconnect", (int)SceneCleanupMode.Off);
-            AssetDatabase.CreateAsset(rules, "Assets/_Project/Settings/MultiplayerRules.asset");
+            AssetDatabase.CreateAsset(rules, "Assets/Settings/MultiplayerRules.asset");
             var networkRoot = new GameObject("NetworkSession");
             var network = networkRoot.AddComponent<NetworkManager>();
             var udp = networkRoot.AddComponent<UDPTransport>();
@@ -93,6 +93,7 @@ namespace ZZabmongus.Editor
             new GameObject("DevelopmentNetworkProbe").AddComponent<MultiplayerProbe>();
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.SaveAssets();
+            CountryLobbySetup.ConfigureOpenScene();
             Debug.Log("MultiplayerBase ready. Create a room in one instance and join from another.");
         }
 
@@ -153,7 +154,7 @@ namespace ZZabmongus.Editor
         }
         private static Material Material(string name, Color color)
         {
-            var path = "Assets/_Project/Art/Materials/" + name + ".mat";
+            var path = "Assets/Art/Materials/" + name + ".mat";
             var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (existing) return existing;
             var material = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = name, color = color };

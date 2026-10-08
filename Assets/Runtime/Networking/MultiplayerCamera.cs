@@ -8,8 +8,7 @@ namespace ZZabmongus.Networking
         {
             var player = NetworkPlayer.Local;
             var target = player ? player.transform.position : Vector3.zero;
-            transform.position = Vector3.Lerp(transform.position, target + new Vector3(0, 22, -10),
-                1 - Mathf.Exp(-6 * Time.unscaledDeltaTime));
+            transform.position = Vector3.Lerp(transform.position, target + new Vector3(0, 22, -10), 1 - Mathf.Exp(-6 * Time.unscaledDeltaTime));
         }
     }
 }

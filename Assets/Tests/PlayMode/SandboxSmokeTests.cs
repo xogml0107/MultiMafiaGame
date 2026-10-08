@@ -18,7 +18,7 @@ namespace ZZabmongus.Tests
         [UnityTest]
         public IEnumerator SandboxStarts_SwitchesPrivateViews_AndShowsResults()
         {
-            var operation = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/_Project/Scenes/FoundationSandbox.unity", new LoadSceneParameters(LoadSceneMode.Single));
+            var operation = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/FoundationSandbox.unity", new LoadSceneParameters(LoadSceneMode.Single));
             while (!operation.isDone) yield return null;
             yield return null;
             yield return null;

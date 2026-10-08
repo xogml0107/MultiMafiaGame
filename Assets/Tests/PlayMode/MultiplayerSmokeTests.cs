@@ -18,9 +18,12 @@ namespace ZZabmongus.Tests
         [UnityTest]
         public IEnumerator HostSpawnsOwnedAvatar_Readies_Moves_Leaves_AndHostsAgain()
         {
-            var load = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/_Project/Scenes/MultiplayerBase.unity", new LoadSceneParameters(LoadSceneMode.Single));
+            var load = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/MultiplayerBase.unity", new LoadSceneParameters(LoadSceneMode.Single));
             while (!load.isDone) yield return null;
             yield return null;
+            var browser = Object.FindFirstObjectByType<RoomBrowserHud>();
+            if (browser) browser.enabled = false;
+            yield return new WaitForSecondsRealtime(0.2f);
             var connection = Object.FindFirstObjectByType<MultiplayerConnection>();
             var lobby = Object.FindFirstObjectByType<NetworkLobby>();
             GameObject.Find("Port").GetComponent<TMP_InputField>().text = "15101";

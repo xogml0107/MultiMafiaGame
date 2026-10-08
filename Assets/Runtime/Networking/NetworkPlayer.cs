@@ -12,7 +12,8 @@ namespace ZZabmongus.Networking
     [RequireComponent(typeof(CharacterController), typeof(NetworkTransform))]
     public sealed class NetworkPlayer : NetworkBehaviour
     {
-        public static readonly Color[] Palette = {
+        public static readonly Color[] Palette = 
+        {
             new(0.92f,0.22f,0.28f), new(0.22f,0.52f,0.95f), new(0.28f,0.8f,0.5f), new(1,0.8f,0.22f),
             new(0.73f,0.38f,0.93f), new(1,0.48f,0.72f), new(1,0.55f,0.2f), new(0.3f,0.88f,0.88f),
             new(0.88f,0.9f,0.94f), new(0.35f,0.38f,0.46f), new(0.57f,0.37f,0.25f), new(0.65f,0.87f,0.23f)
@@ -105,10 +106,10 @@ namespace ZZabmongus.Networking
 
         private static Vector2 ReadInput()
         {
-            if (EventSystem.current && EventSystem.current.currentSelectedGameObject &&
-                EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>()) return Vector2.zero;
+            if (EventSystem.current && EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>()) return Vector2.zero;
             var keyboard = Keyboard.current;
             if (keyboard == null) return Vector2.zero;
+
             return Vector2.ClampMagnitude(new Vector2(
                 (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed ? 1 : 0) - (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed ? 1 : 0),
                 (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed ? 1 : 0) - (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed ? 1 : 0)), 1);

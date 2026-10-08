@@ -856,6 +856,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1347120528}
   - component: {fileID: 1347120527}
+  - component: {fileID: 1347120529}
   m_Layer: 0
   m_Name: Key Light
   m_TagString: Untagged
@@ -943,6 +944,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1347120529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347120526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &1394794057
 GameObject:
   m_ObjectHideFlags: 0
@@ -1109,6 +1139,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1624334908}
   - component: {fileID: 1624334907}
+  - component: {fileID: 1624334909}
   m_Layer: 0
   m_Name: RoomUI
   m_TagString: Untagged
@@ -1145,6 +1176,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1624334909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624334906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc738e335017ee04d86f6d2b1c9a42b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZZabmongus.Networking::ZZabmongus.Networking.RoomBrowserHud
 --- !u!1 &1715158034
 GameObject:
   m_ObjectHideFlags: 0
@@ -1265,6 +1308,8 @@ GameObject:
   - component: {fileID: 1743542418}
   - component: {fileID: 1743542417}
   - component: {fileID: 1743542421}
+  - component: {fileID: 1743542424}
+  - component: {fileID: 1743542425}
   m_Layer: 0
   m_Name: NetworkSession
   m_TagString: Untagged
@@ -1353,7 +1398,7 @@ MonoBehaviour:
   _networkAssets: {fileID: 0}
   _networkRules: {fileID: 11400000, guid: ff4771d223434a74eb6bbfe347507a36, type: 2}
   _visibilityRules: {fileID: 11400000, guid: 8f014a5bd8dc68646a2a3c0b18c5bbd8, type: 2}
-  _authenticator: {fileID: 0}
+  _authenticator: {fileID: 1743542424}
   _tickRate: 30
   _maxTicksPerFrame: 5
   _mtuExceededBehaviour: 2
@@ -1413,6 +1458,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1743542424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1743542416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5c701a53772c542a4cb062dd86e81b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZZabmongus.Networking::ZZabmongus.Networking.RoomAuthenticator
+  _timeout: 5
+--- !u!114 &1743542425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1743542416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c30de92fc4ef3e458de2b4cd6203b9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ZZabmongus.Networking::ZZabmongus.Networking.SteamRoomDirectory
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

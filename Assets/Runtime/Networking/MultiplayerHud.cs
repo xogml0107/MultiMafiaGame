@@ -15,8 +15,12 @@ namespace ZZabmongus.Networking
         private TMP_Text status, roster, transportLabel;
         private UnityEngine.UI.Button host, join, leave, ready, color, start, back, mode;
         private float nextRefresh;
+        private RoomBrowserHud browser;
+        private GameObject roomPanel;
+        private bool wasInRoom;
         private void Start()
         {
+            browser = FindFirstObjectByType<RoomBrowserHud>();
             var canvasObject = new GameObject("MultiplayerHUD", typeof(RectTransform), typeof(Canvas),
                 typeof(UnityEngine.UI.CanvasScaler), typeof(UnityEngine.UI.GraphicRaycaster));
             canvasObject.transform.SetParent(transform, false);
@@ -30,6 +34,7 @@ namespace ZZabmongus.Networking
             var panel = new GameObject("RoomPanel", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.VerticalLayoutGroup));
             panel.transform.SetParent(canvasObject.transform, false);
             var rect = (RectTransform)panel.transform;
+            roomPanel = panel;
             rect.anchorMin = new Vector2(0.012f, 0.025f); rect.anchorMax = new Vector2(0.29f, 0.975f);
             rect.offsetMin = rect.offsetMax = Vector2.zero;
             panel.GetComponent<UnityEngine.UI.Image>().color = new Color(0.045f, 0.065f, 0.10f, 0.98f);
@@ -92,6 +97,13 @@ namespace ZZabmongus.Networking
         }
         private void Refresh()
         {
+            var useBrowser = browser && browser.enabled;
+            var inRoom = useBrowser && browser.InRoom;
+            if (inRoom && !wasInRoom) nameInput.SetTextWithoutNotify(connection.DisplayName);
+            wasInRoom = inRoom;
+            roomPanel.SetActive(!useBrowser || browser.InRoom);
+            host.gameObject.SetActive(!useBrowser); join.gameObject.SetActive(!useBrowser); mode.gameObject.SetActive(!useBrowser);
+            addressInput.gameObject.SetActive(!useBrowser); portInput.gameObject.SetActive(!useBrowser);
             var players = lobby.Players;
             var local = NetworkPlayer.Local;
             var busy = connection.Busy;
@@ -101,11 +113,15 @@ namespace ZZabmongus.Networking
             ready.interactable = color.interactable = local && !lobby.InSession;
             start.interactable = lobby.CanStart;
             back.interactable = connection.Hosting && lobby.InSession;
-            ready.GetComponentInChildren<TMP_Text>().text = local && local.Ready ? "NOT READY" : "READY";
+            ready.GetComponentInChildren<TMP_Text>().text = local && local.Ready ? "준비 취소" : "준비";
+            leave.GetComponentInChildren<TMP_Text>().text = "방 나가기";
+            start.GetComponentInChildren<TMP_Text>().text = "게임 시작";
+            back.GetComponentInChildren<TMP_Text>().text = "대기실로 돌아가기";
+            color.GetComponentInChildren<TMP_Text>().text = "색상 변경";
             transportLabel.text = connection.Mode == ConnectionMode.Lan ? "Connection: LAN / UDP" : "Connection: Steam P2P";
             status.text = connection.Message + (connection.Mode == ConnectionMode.Steam && connection.SteamId.Length > 0 ? "\nYour Steam ID: " + connection.SteamId : "");
-            roster.text = (lobby.InSession ? "SESSION RUNNING" : "WAITING ROOM") + $"  {players.Length}/{NetworkLobby.MaxPlayers}\n\n" +
-                string.Join("\n", players.Select(p => $"<color=#{ColorUtility.ToHtmlStringRGB(NetworkPlayer.Palette[p.ColorIndex])}>●</color> {p.DisplayName}{(p.isOwner ? " (you)" : "")}   {(p.Ready ? "READY" : "...")}"));
+            roster.text = (lobby.InSession ? "게임 중" : "대기실") + $"  {players.Length}/{lobby.Capacity}\n\n" +
+                string.Join("\n", players.Select(p => $"<color=#{ColorUtility.ToHtmlStringRGB(NetworkPlayer.Palette[p.ColorIndex])}>●</color> {p.DisplayName}{(p.isOwner ? " (나)" : "")}   {(p.Ready ? "준비" : "...")}"));
         }
 
         private static TMP_Text Text(Transform parent, string caption, int size, float height)
@@ -113,7 +129,7 @@ namespace ZZabmongus.Networking
             var root = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI), typeof(UnityEngine.UI.LayoutElement));
             root.transform.SetParent(parent, false);
             var label = root.GetComponent<TextMeshProUGUI>();
-            label.font = TMP_Settings.defaultFontAsset;
+            label.font = Resources.Load<TMP_FontAsset>("UI/LobbyFont") ?? TMP_Settings.defaultFontAsset;
             label.text = caption; label.fontSize = size; label.color = Color.white; label.raycastTarget = false;
             root.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = height;
             return label;

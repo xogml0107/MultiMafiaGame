@@ -20,6 +20,6 @@ PurrNet 1.24.1의 태그와 release 브랜치는 확인 시점에 `7061f0a5b46b0
 
 PurrNet에 Steam Transport가 포함되어 있고 이 전송 계층은 Steamworks.NET을 요구합니다. Facepunch.Steamworks를 중복 설치하지 않습니다. 이후 멀티 베이스 작업은 기존 패키지만 사용했습니다.
 
-`MultiplayerBase`에는 NetworkManager, UDP/SteamTransport, Steam 초기화/콜백 수명 관리, PurrNet 대기실, PlayerID별 캐릭터 생성/정리를 구성했습니다. Steam 로비 검색/초대는 아직 없습니다. Core의 실제 번호와 마피아 진영 전체를 SyncVar로 전체 전송하면 안 됩니다. 실행 방법은 [MultiplayerBase.md](MultiplayerBase.md)를 참고하세요.
+`MultiplayerBase`에는 NetworkManager, UDP/SteamTransport, Steam 초기화/콜백 수명 관리, 국가별 Steam 방 검색/생성, 공개·비밀번호 입장, 정원 검증, PurrNet 대기실과 PlayerID별 캐릭터 생성/정리를 구성했습니다. Steam 친구 초대 UI는 아직 없습니다. Core의 실제 번호와 마피아 진영 전체를 SyncVar로 전체 전송하면 안 됩니다. 실행 방법은 [MultiplayerBase.md](MultiplayerBase.md)를 참고하세요.
 
-Steam App ID는 아직 지정하지 않았고 `steam_appid.txt`도 생성하지 않았습니다. UDP 멀티와 로컬 샌드박스는 Steam 실행 없이 플레이할 수 있습니다. 별도 Steam 계정 간 P2P와 초대는 App ID 설정 후 검증해야 합니다.
+로컬 `steam_appid.txt`는 사용자 설정 파일이며 Git에서 제외합니다. 로비는 Steam 실행과 유효한 App ID가 필요합니다. UDP 개발 연결과 로컬 샌드박스는 Steam 없이 사용할 수 있습니다. 별도 Steam 계정 간 검색/생성/P2P 입장은 실제 계정 환경에서 검증해야 합니다. 패키지를 추가하거나 변경하지 않고 기존 버전 위에 로비 기능을 구현했습니다.
