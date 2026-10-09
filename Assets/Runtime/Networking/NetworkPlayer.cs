@@ -10,7 +10,7 @@ using UnityEngine.InputSystem;
 namespace ZZabmongus.Networking
 {
     [RequireComponent(typeof(CharacterController), typeof(NetworkTransform))]
-    public sealed class NetworkPlayer : NetworkBehaviour
+    public sealed partial class NetworkPlayer : NetworkBehaviour
     {
         public static readonly Color[] Palette = 
         {
@@ -63,6 +63,7 @@ namespace ZZabmongus.Networking
 
         protected override void OnDespawned()
         {
+            ClearMatchInfo();
             if (Local == this) Local = null;
             controller.enabled = false;
             profileSent = false;
@@ -73,10 +74,11 @@ namespace ZZabmongus.Networking
         private void Update()
         {
             if (!isSpawned) return;
+            if (!lobby) lobby = FindFirstObjectByType<NetworkLobby>();
             if (isOwner)
             {
                 Local = this;
-                if (!profileSent)
+                if (!profileSent && lobby && !lobby.InSession && !lobby.Loading)
                 {
                     profileSent = true;
                     var connection = FindFirstObjectByType<MultiplayerConnection>();
@@ -85,7 +87,7 @@ namespace ZZabmongus.Networking
                 if (Time.unscaledTime >= nextSend)
                 {
                     nextSend = Time.unscaledTime + 0.05f;
-                    var input = ReadInput();
+                    var input = SessionSceneFlow.Instance && !SessionSceneFlow.Instance.CanMove ? Vector2.zero : ReadInput();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     if (ProbeInput.HasValue) input = ProbeInput.Value;
 #endif
@@ -106,7 +108,9 @@ namespace ZZabmongus.Networking
 
         private static Vector2 ReadInput()
         {
-            if (EventSystem.current && EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>()) return Vector2.zero;
+            var selected = EventSystem.current ? EventSystem.current.currentSelectedGameObject : null;
+            if (selected && selected.activeInHierarchy &&
+                (selected.GetComponent<TMP_InputField>() || selected.GetComponentInParent<TMP_Dropdown>())) return Vector2.zero;
             var keyboard = Keyboard.current;
             if (keyboard == null) return Vector2.zero;
 
@@ -130,8 +134,20 @@ namespace ZZabmongus.Networking
         private void FixedUpdate()
         {
             if (!isServer || !controller.enabled) return;
+            if (SessionSceneFlow.Instance && !SessionSceneFlow.Instance.CanMove) return;
             var input = Time.unscaledTime - lastInputAt < 0.25f ? serverInput : Vector2.zero;
             controller.Move(new Vector3(input.x * speed, -2, input.y * speed) * Time.fixedDeltaTime);
+        }
+
+        internal void PlaceAt(Vector3 position)
+        {
+            if (!isServer) return;
+            controller.enabled = false;
+            serverInput = Vector2.zero; lastInputAt = -1;
+            transform.position = position;
+            var sync = GetComponent<NetworkTransform>();
+            sync.ClearInterpolation(position, null, null); sync.ForceSync();
+            controller.enabled = true;
         }
 
         public void SetProfile(string name, int requestedColor)
@@ -142,7 +158,7 @@ namespace ZZabmongus.Networking
         [ServerRpc]
         private void RequestProfile(string name, int requestedColor)
         {
-            if ((lobby && lobby.InSession) || Time.unscaledTime < nextProfileAt) return;
+            if ((lobby && (lobby.InSession || lobby.Loading)) || Time.unscaledTime < nextProfileAt) return;
             nextProfileAt = Time.unscaledTime + 0.3f;
             displayName.value = SanitizeName(name);
             requestedColor = Mathf.Clamp(requestedColor, 0, Palette.Length - 1);
@@ -168,7 +184,7 @@ namespace ZZabmongus.Networking
         [ServerRpc]
         private void RequestReady(bool value)
         {
-            if ((lobby && lobby.InSession) || Time.unscaledTime < nextReadyAt) return;
+            if ((lobby && (lobby.InSession || lobby.Loading)) || Time.unscaledTime < nextReadyAt) return;
             nextReadyAt = Time.unscaledTime + 0.2f;
             ready.value = value;
         }

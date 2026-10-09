@@ -7,7 +7,7 @@ using UnityEngine.InputSystem.UI;
 
 namespace ZZabmongus.Networking
 {
-    public sealed class MultiplayerHud : MonoBehaviour
+    public sealed partial class MultiplayerHud : MonoBehaviour
     {
         [SerializeField] private MultiplayerConnection connection;
         [SerializeField] private NetworkLobby lobby;
@@ -18,8 +18,16 @@ namespace ZZabmongus.Networking
         private RoomBrowserHud browser;
         private GameObject roomPanel;
         private bool wasInRoom;
-        private void Start()
+        private SessionSceneEntry entry;
+        private System.Collections.IEnumerator Start()
         {
+            entry = FindFirstObjectByType<SessionSceneEntry>();
+            while (!connection || !lobby || (entry && !lobby.isSpawned))
+            {
+                if (!connection) connection = FindFirstObjectByType<MultiplayerConnection>();
+                if (!lobby) lobby = FindFirstObjectByType<NetworkLobby>();
+                yield return null;
+            }
             browser = FindFirstObjectByType<RoomBrowserHud>();
             var canvasObject = new GameObject("MultiplayerHUD", typeof(RectTransform), typeof(Canvas),
                 typeof(UnityEngine.UI.CanvasScaler), typeof(UnityEngine.UI.GraphicRaycaster));
@@ -31,6 +39,12 @@ namespace ZZabmongus.Networking
             scaler.matchWidthOrHeight = 1;
             if (!EventSystem.current)
                 new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule)).transform.SetParent(transform, false);
+            if (entry && entry.Screen == SessionScreen.Game)
+            {
+                BuildMatchHud(canvasObject.transform);
+                RefreshMatchHud();
+                yield break;
+            }
             var panel = new GameObject("RoomPanel", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.VerticalLayoutGroup));
             panel.transform.SetParent(canvasObject.transform, false);
             var rect = (RectTransform)panel.transform;
@@ -43,7 +57,7 @@ namespace ZZabmongus.Networking
             layout.childControlWidth = layout.childControlHeight = true;
             layout.childForceExpandHeight = false;
             Text(panel.transform, "ZZABMONGUS", 29, 36);
-            Text(panel.transform, "MULTIPLAYER BASE  |  4-12 PLAYERS", 14, 23).color = new Color(0.35f, 0.85f, 0.9f);
+            Text(panel.transform, "대기실  |  4~12명", 20, 32).color = new Color(0.35f, 0.85f, 0.9f);
             nameInput = Input(panel.transform, "Name", connection.DisplayName, 16);
             mode = Button(panel.transform, "Connection: LAN / UDP", () =>
             {
@@ -80,6 +94,7 @@ namespace ZZabmongus.Networking
                 connection.DisplayName = NetworkPlayer.SanitizeName(value);
                 if (NetworkPlayer.Local) NetworkPlayer.Local.SetProfile(value, NetworkPlayer.Local.ColorIndex);
             });
+            if (!entry) BuildMatchHud(canvasObject.transform);
             Refresh();
         }
 
@@ -91,8 +106,9 @@ namespace ZZabmongus.Networking
         }
         private void Update()
         {
-            if (!status || Time.unscaledTime < nextRefresh) return;
+            if (!connection || !lobby || (!status && !matchPanel) || Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + 0.15f;
+            if (entry && entry.Screen == SessionScreen.Game) { RefreshMatchHud(); return; }
             Refresh();
         }
         private void Refresh()
@@ -101,16 +117,19 @@ namespace ZZabmongus.Networking
             var inRoom = useBrowser && browser.InRoom;
             if (inRoom && !wasInRoom) nameInput.SetTextWithoutNotify(connection.DisplayName);
             wasInRoom = inRoom;
-            roomPanel.SetActive(!useBrowser || browser.InRoom);
-            host.gameObject.SetActive(!useBrowser); join.gameObject.SetActive(!useBrowser); mode.gameObject.SetActive(!useBrowser);
-            addressInput.gameObject.SetActive(!useBrowser); portInput.gameObject.SetActive(!useBrowser);
+            roomPanel.SetActive((!useBrowser || browser.InRoom) && !lobby.InSession);
+            if (matchPanel) RefreshMatchHud();
+            var legacyControls = !entry && !useBrowser;
+            host.gameObject.SetActive(legacyControls); join.gameObject.SetActive(legacyControls); mode.gameObject.SetActive(legacyControls);
+            addressInput.gameObject.SetActive(legacyControls); portInput.gameObject.SetActive(legacyControls);
+            back.gameObject.SetActive(!entry);
             var players = lobby.Players;
             var local = NetworkPlayer.Local;
             var busy = connection.Busy;
             host.interactable = join.interactable = mode.interactable = addressInput.interactable = portInput.interactable = !busy;
             leave.interactable = busy;
-            nameInput.interactable = !lobby.InSession;
-            ready.interactable = color.interactable = local && !lobby.InSession;
+            nameInput.interactable = !lobby.InSession && !lobby.Loading;
+            ready.interactable = color.interactable = local && !lobby.InSession && !lobby.Loading;
             start.interactable = lobby.CanStart;
             back.interactable = connection.Hosting && lobby.InSession;
             ready.GetComponentInChildren<TMP_Text>().text = local && local.Ready ? "준비 취소" : "준비";
@@ -119,7 +138,7 @@ namespace ZZabmongus.Networking
             back.GetComponentInChildren<TMP_Text>().text = "대기실로 돌아가기";
             color.GetComponentInChildren<TMP_Text>().text = "색상 변경";
             transportLabel.text = connection.Mode == ConnectionMode.Lan ? "Connection: LAN / UDP" : "Connection: Steam P2P";
-            status.text = connection.Message + (connection.Mode == ConnectionMode.Steam && connection.SteamId.Length > 0 ? "\nYour Steam ID: " + connection.SteamId : "");
+            status.text = (string.IsNullOrEmpty(lobby.Notice) ? connection.Message : lobby.Notice);
             roster.text = (lobby.InSession ? "게임 중" : "대기실") + $"  {players.Length}/{lobby.Capacity}\n\n" +
                 string.Join("\n", players.Select(p => $"<color=#{ColorUtility.ToHtmlStringRGB(NetworkPlayer.Palette[p.ColorIndex])}>●</color> {p.DisplayName}{(p.isOwner ? " (나)" : "")}   {(p.Ready ? "준비" : "...")}"));
         }

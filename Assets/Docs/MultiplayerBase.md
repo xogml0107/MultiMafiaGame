@@ -1,10 +1,10 @@
 # 멀티플레이 로비
 
-`Assets/Scenes/MultiplayerBase.unity`에 국가별 Steam 방 목록과 PurrNet 대기실을 연결했다. 국가 선택은 Steam 로비 메타데이터를 필터링한다. 국가별 전용 서버나 위치 보장 기능은 아니다.
+`Assets/Scenes/LobbyScene.unity`에 국가별 Steam 방 목록을 연결했다. 입장 후 `WaitingRoomScene`, 시작 후 `GameScene`으로 이동한다. 연결과 방은 씬 사이에 유지한다. 국가 선택은 Steam 로비 메타데이터를 필터링한다. 국가별 전용 서버나 위치 보장 기능은 아니다. [씬 구성과 로딩 정책](SceneFlow.md)을 참고한다.
 
 ## 실행과 입장
 
-1. Unity 6000.3.22f1에서 씬을 연다. 필요한 컴포넌트와 글꼴을 연결하는 메뉴는 `ZZabmongus > Configure Country Room Lobby`이다.
+1. Unity 6000.3.22f1에서 `ZZabmongus > Create or Open Lobby`로 로비 씬을 연다.
 2. 사용자가 Play를 실행하면 대한민국/일본/싱가포르/미국/독일/호주 중 국가를 선택한다. Steam 실행과 유효한 App ID 설정이 필요하다. 이름 입력, 새로고침, 방 생성 버튼이 있다.
 3. 방 생성에서 이름과 최대 인원(4~12명)을 설정한다. `공개 방` 체크를 끄면 비밀번호 입력이 활성화된다. 공개로 바꾸면 비밀번호를 지운다.
 4. 공개 방은 더블 클릭하면 바로 입장을 시도한다. 비공개 방은 잠금 아이콘을 표시하고 더블 클릭하면 비밀번호 입력창을 연다. 호스트가 올바른 비밀번호를 확인해야 캐릭터를 생성한다.
@@ -25,10 +25,10 @@ Steam 검색은 Steam 자체 정원이 꽉 찬 방을 반환하지 않는다. �
 
 - PurrNet이 캐릭터 생성, 소유권, 서버 이동, 벽 충돌과 공개 대기실 상태를 관리한다.
 - 입력은 소유자만 보내고 서버가 길이를 제한한다. 오래된 입력은 무시하며 0.25초 동안 입력이 없으면 멈춘다. 입력 20Hz, 네트워크 틱 30Hz이다.
-- `게임 시작`은 대기실/세션 상태를 전환한다. Core의 번호 배정, 비밀 진영, 정보 장치, 미션, 채점은 아직 네트워크에 연결하지 않았다.
+- `게임 시작`은 서버에서 Core의 번호·진영을 배정하고 한 판을 생성한다. 개인 진영, 시간/공용 상태, 최종 제출, 결과와 대기실 복귀를 연결했다. 정보 장치, 포섭, 협동 미션 상호작용은 후속 작업이다. 상세 범위는 [OnlineMatch.md](OnlineMatch.md)를 참고한다.
 - UI와 플레이어 이름은 Noto Sans KR 정적 글꼴과 동적 fallback을 사용한다. 원본 글꼴과 OFL 라이선스는 `Assets/Art/Fonts/`에 포함한다.
 
-LAN 개발 연결은 `RoomBrowserHud`를 비활성화하면 기존 IP/포트 UI로 사용할 수 있다. UDP에는 인터넷 NAT 우회 기능이 없다. `ZZabmongus > Build Multiplayer Windows Test Player`는 이 씬의 Development 빌드를 `Build/MultiplayerBase/ZZabmongus.exe`로 만든다.
+LAN 개발 연결은 기존 `MultiplayerBase` 씬에서 `RoomBrowserHud`를 비활성화하면 IP/포트 UI로 사용할 수 있다. UDP에는 인터넷 NAT 우회 기능이 없다. `ZZabmongus > Build Multiplayer Windows Test Player`는 로비·대기실·게임 세 씬을 포함한 Development 빌드를 `Build/MultiplayerBase/ZZabmongus.exe`로 만든다.
 
 ## 검증과 작업 정책
 

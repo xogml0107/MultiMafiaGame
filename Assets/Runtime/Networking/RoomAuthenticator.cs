@@ -18,7 +18,7 @@ namespace ZZabmongus.Networking
 
     public sealed class RoomAuthenticator : AuthenticationBehaviour<RoomJoinPayload, RoomDenial>
     {
-        public const int Protocol = 2;
+        public const int Protocol = 3;
         private RoomJoinPayload clientPayload;
         private RoomAdmission admission;
         private NetworkLobby lobby;
@@ -40,7 +40,8 @@ namespace ZZabmongus.Networking
         protected override Task<AuthenticationResponse<RoomDenial>> ValidateClientPayload(Connection conn, RoomJoinPayload payload)
         {
             if (!lobby) lobby = FindFirstObjectByType<NetworkLobby>();
-            if (admission != null) admission.InProgress = lobby && lobby.InSession;
+            if (admission != null) admission.InProgress = (lobby && (lobby.InSession || lobby.Loading)) ||
+                (SessionSceneFlow.Instance && SessionSceneFlow.Instance.Transitioning);
             var result = payload.protocol != Protocol ? RoomDenial.InvalidRequest :
                 admission == null ? RoomDenial.Closed : admission.TryAdmit(conn.connectionId, payload.roomId, payload.password);
             return Task.FromResult(result == RoomDenial.None ? AuthenticationResponse<RoomDenial>.Accept() : AuthenticationResponse<RoomDenial>.Deny(result));

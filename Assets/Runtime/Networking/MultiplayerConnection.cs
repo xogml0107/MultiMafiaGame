@@ -117,6 +117,7 @@ namespace ZZabmongus.Networking
 
         public void Leave()
         {
+            SessionSceneFlow.Instance?.PrepareLeave();
             requestedHost = connecting = false;
             if (Authentication.Admission != null) Authentication.Admission.Closed = true;
             Authentication.ClearClientPassword();
@@ -170,6 +171,7 @@ namespace ZZabmongus.Networking
             }
             else if (state == ConnectionState.Disconnected && !connecting)
             {
+                SessionSceneFlow.Instance?.PrepareLeave();
                 Message = "방 연결이 종료되었습니다.";
                 if (requestedHost) Leave();
             }

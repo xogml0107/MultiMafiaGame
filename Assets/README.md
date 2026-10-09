@@ -1,10 +1,12 @@
 # ZZabmongus Foundation
 
-게임 기획서 v0.4를 바탕으로 만든 기초입니다. 규칙 검증용 **FoundationSandbox**와 PurrNet 연결/이동 검증용 **MultiplayerBase**를 분리했습니다.
+게임 기획서 v0.4를 바탕으로 만든 기초입니다. 멀티플레이는 **LobbyScene → WaitingRoomScene → GameScene**으로 구분했습니다. 규칙 검증용 FoundationSandbox와 기존 개발용 MultiplayerBase도 보존합니다.
 
-멀티 실행은 `ZZabmongus > Create or Open Multiplayer Base` 메뉴 또는 `Assets/Scenes/MultiplayerBase.unity`에서 시작합니다. 국가를 선택하면 해당 국가의 Steam 방 목록을 표시합니다. 이름·공개 여부·비밀번호·정원으로 방을 만들고, 방을 더블 클릭해 입장합니다. 잠금 표시, 비밀번호 확인, 정원 초과 팝업을 포함합니다. 자세한 실행/Steam 설정은 [Docs/MultiplayerBase.md](Docs/MultiplayerBase.md)를 참고하세요.
+멀티 실행은 `ZZabmongus > Create or Open Lobby` 메뉴 또는 `Assets/Scenes/LobbyScene.unity`에서 시작합니다. 국가를 선택하면 해당 국가의 Steam 방 목록을 표시합니다. 이름·공개 여부·비밀번호·정원으로 방을 만들고, 방을 더블 클릭해 입장합니다. 잠금 표시, 비밀번호 확인, 정원 초과 팝업을 포함합니다. 씬 전환은 [Docs/SceneFlow.md](Docs/SceneFlow.md), Steam 설정은 [Docs/MultiplayerBase.md](Docs/MultiplayerBase.md)를 참고하세요.
 
 **패키지 추가·업데이트 전에는 항상 사용자에게 물어봅니다.** 이번 멀티 베이스에는 패키지를 추가하지 않았습니다.
+
+멀티 대기실의 게임 시작을 Core에 연결했습니다. 서버 번호·진영 배정, 본인에게만 진영 전달, 서버 시간, 최종 답안 확정, 결과와 대기실 복귀가 동작하는 코드 기반입니다. 자기 번호는 숨깁니다. 정보 장치·포섭·미션 상호작용은 다음 단계이며 범위와 검증은 [Docs/OnlineMatch.md](Docs/OnlineMatch.md)에 기록합니다.
 
 ## 실행
 
@@ -13,7 +15,7 @@
 3. `Assets/Scenes/FoundationSandbox.unity`에서 Play를 누릅니다.
 4. 기본 8명의 가상 플레이어를 Tab으로 번갈아 조종합니다. 다른 PC의 플레이어가 아닙니다.
 
-씬 생성기는 기존 씬을 덮어쓰지 않습니다. 열려 있는 씬에 저장하지 않은 변경이 있으면 먼저 저장해야 합니다. 테스트 씬은 배포 빌드의 씬 목록에 자동 추가하지 않습니다.
+씬 생성기는 기존 씬을 덮어쓰지 않습니다. 열려 있는 씬에 저장하지 않은 변경이 있으면 먼저 저장해야 합니다. 멀티플레이의 로비·대기실·게임 세 씬은 빌드 목록의 처음에 등록합니다. 규칙 테스트용 FoundationSandbox는 자동 등록하지 않습니다.
 
 | 조작 | 동작 |
 |---|---|
@@ -47,7 +49,7 @@
 - 시민 정답만 승리 계산. 결과 화면에서 번호 → 마피아 진영/포섭 시각 → 최근 사건 표시.
 - 개인 후보 메모, 테스트 맵, 이동, 장치 상호작용, 결과 표시.
 
-일반 미션 6종/번호 미션 5종, 규칙 각 5종, 음성, 튜토리얼은 아직 구현하지 않았습니다. 릴레이는 미션 상태 전환/중복 방지/보상 검증을 위한 첫 번째 단순 미션입니다. 대기실과 온라인 이동은 별도 MultiplayerBase 씬에 있으며 Core의 추리/미션 규칙과는 아직 연결하지 않았습니다.
+일반 미션 6종/번호 미션 5종, 규칙 각 5종, 음성, 튜토리얼은 아직 구현하지 않았습니다. 릴레이는 미션 상태 전환/중복 방지/보상 검증을 위한 첫 번째 단순 미션입니다. 온라인 GameScene에 Core의 판 생성/진영/시간/제출/채점을 연결했고, 정보 장치·포섭·협동 미션의 온라인 상호작용은 아직 연결하지 않았습니다.
 
 ## 임시로 결정한 세부 규칙
 
@@ -76,19 +78,19 @@ Assets/
   Art/Materials/     Unity API로 생성하는 테스트 머티리얼
 ```
 
-`Core` 어셈블리는 Unity를 참조하지 않습니다. `Runtime`은 Core를 호출하고, Networking/Editor/Tests는 각각 별도 어셈블리입니다. Networking은 대기실 공개 상태와 입력/위치만 복제합니다.
+`Core` 어셈블리는 Unity를 참조하지 않습니다. `Runtime`은 Core를 호출하고, Networking/Editor/Tests는 각각 별도 어셈블리입니다. Networking은 공개 방/경기 상태와 입력/위치를 복제하며, 개인 진영은 해당 소유자에게만 전달합니다.
 
 `MatchSession`은 **서버/호스트에서만 보유할 객체**입니다. `GetPlayerView(id)`는 호출자를 인증하지 않는 로컬 API이므로 그대로 RPC로 노출하면 안 됩니다. 서버는 실제 연결의 소유자 ID를 사용해야 합니다. 다른 플레이어의 개인 뷰, 시드, 실제 번호, 비공개 사건을 클라이언트에 복제하면 안 됩니다. 현재 씬은 한 PC에서 모든 개인 화면을 번갈아 보는 개발 전용 도구입니다.
 
 온라인 어댑터를 구현할 때는 요청자의 연결 ID, 이동 속도/좌표, 장치 위치, 미션 위치, 요청 빈도를 서버에서 검증하고 나서 Core 명령을 호출하세요. Core가 포인트·시간·중복·진영 조건을 검증하며, 현재 LocalSandbox는 장치 거리만 로컬에서 확인합니다. `Tick`과 `SetPosition`도 클라이언트가 임의 호출하는 네트워크 명령이 되어서는 안 됩니다.
 
-네트워크는 사용자 선택에 따라 **PurrNet + Steamworks.NET**을 사용합니다. 고정 버전과 근거는 `Docs/Networking.md`에 기록했습니다. 대기실은 최대 12명이고 4명 이상 모두 준비해야 호스트가 시작합니다. 호스트 이탈 시 방이 종료되며 참가자는 대기실에서만 재접속할 수 있습니다. 다음 작업은 Core의 서버 전용 연결/개인 정보 전송 → 정보 장치/포섭의 서버 검증 → 협동 미션 확장 → 번호 기반 미션입니다.
+네트워크는 사용자 선택에 따라 **PurrNet + Steamworks.NET**을 사용합니다. 고정 버전과 근거는 `Docs/Networking.md`에 기록했습니다. 대기실은 최대 12명이고 4명 이상 모두 준비해야 호스트가 시작합니다. 호스트 이탈 시 방이 종료되며 참가자는 대기실에서만 재접속할 수 있습니다. 다음 작업은 정보 장치/개인 단서의 서버 검증 → 포섭 → 협동 미션 확장 → 번호 기반 미션입니다.
 
 ## 검증
 
 Unity 메뉴 `Window > General > Test Runner`에서 실행합니다.
 
-**에이전트는 사용자가 별도로 지시하지 않으면 에디터 Play 모드가 필요한 테스트를 실행하지 않습니다.** 2026-10-09 EditMode 63개가 통과했습니다. 이번 로비 작업의 검증 결과와 PlayMode 재검증 제한은 [Docs/MultiplayerBase.md](Docs/MultiplayerBase.md)에 기록했습니다.
+**에이전트는 사용자가 별도로 지시하지 않으면 에디터 Play 모드가 필요한 테스트를 실행하지 않습니다.** 2026-10-10 EditMode 86개가 통과했습니다. 로비 검증은 [Docs/MultiplayerBase.md](Docs/MultiplayerBase.md), 온라인 판 연결은 [Docs/OnlineMatch.md](Docs/OnlineMatch.md), 씬 분리는 [Docs/SceneFlow.md](Docs/SceneFlow.md)에 기록했습니다.
 
 2026-10-08, Unity 6000.3.22f1 + PurrNet 1.24.1 + Steamworks.NET 2025.164.1 환경의 검증 결과:
 

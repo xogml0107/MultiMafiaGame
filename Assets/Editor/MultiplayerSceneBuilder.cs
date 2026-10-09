@@ -19,7 +19,10 @@ namespace ZZabmongus.Editor
         private const string PrefabPath = "Assets/Prefabs/NetworkPlayer.prefab";
 
         [MenuItem("ZZabmongus/Create or Open Multiplayer Base")]
-        public static void CreateOrOpen()
+        public static void CreateOrOpen() => SessionSceneBuilder.CreateOrOpen();
+
+        [MenuItem("ZZabmongus/Development/Create or Open Legacy Multiplayer Base")]
+        public static void CreateOrOpenLegacy()
         {
             if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play mode first.");
             for (var i = 0; i < SceneManager.sceneCount; i++)
@@ -136,7 +139,7 @@ namespace ZZabmongus.Editor
         {
             CreateOrOpen();
             Directory.CreateDirectory("Build/MultiplayerBase");
-            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = new[] { ScenePath },
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = SessionSceneBuilder.ScenePaths,
                 locationPathName = "Build/MultiplayerBase/ZZabmongus.exe", target = BuildTarget.StandaloneWindows64,
                 options = BuildOptions.Development });
             if (report.summary.result != BuildResult.Succeeded) throw new InvalidOperationException("Multiplayer test player build failed: " + report.summary.result);

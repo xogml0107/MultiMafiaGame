@@ -189,6 +189,7 @@ namespace ZZabmongus.Networking
         private void Update() => Safe(Tick);
         private void Tick()
         {
+            if (!lobby) lobby = FindFirstObjectByType<NetworkLobby>();
             if (searching && Time.unscaledTime > searchDeadline) { searching = false; searchResult.Cancel(); Fail("방 목록 요청 시간이 초과되었습니다."); }
             if (operation != Operation.None && Time.unscaledTime > operationDeadline) { Fail("방 연결 시간이 초과되었습니다."); return; }
             if (CurrentLobby == 0) return;
@@ -200,7 +201,7 @@ namespace ZZabmongus.Networking
             if (!ownsLobby || !connection.Hosting) return;
             var admission = connection.Authentication.Admission;
             if (admission == null) return;
-            var started = lobby && lobby.InSession;
+            var started = lobby && (lobby.InSession || lobby.Loading);
             var ready = NetworkPlayer.Local && connection.Network.isLocalPlayerReady;
             var signature = admission.Count + ":" + started + ":" + ready;
             if (signature == lastPublished) return;

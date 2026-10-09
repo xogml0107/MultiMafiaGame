@@ -15,11 +15,7 @@ namespace ZZabmongus.Editor
         [MenuItem("ZZabmongus/Configure Country Room Lobby")]
         public static void Configure()
         {
-            if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play mode first.");
-            var active = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-            if (active.isDirty) throw new InvalidOperationException("Save your modified scene first.");
-            if (active.path != MultiplayerSceneBuilder.ScenePath) EditorSceneManager.OpenScene(MultiplayerSceneBuilder.ScenePath);
-            ConfigureOpenScene();
+            SessionSceneBuilder.CreateOrOpen();
         }
 
         public static void ConfigureOpenScene()

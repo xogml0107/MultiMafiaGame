@@ -1,7 +1,7 @@
 {
   "name": "ZZabmongus.EditModeTests",
   "rootNamespace": "ZZabmongus.Tests",
-  "references": ["ZZabmongus.Core"],
+  "references": ["ZZabmongus.Core", "ZZabmongus.Networking", "PurrNet.Runtime", "Unity.ugui", "Unity.TextMeshPro"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"]
 }

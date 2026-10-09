@@ -11,6 +11,16 @@ namespace ZZabmongus.Networking
         [SerializeField] private NetworkLobby lobby;
         private readonly Dictionary<PlayerID, NetworkPlayer> spawned = new();
 
+        private void Update()
+        {
+            if (!manager || !manager.isServer) return;
+            if (!lobby) lobby = FindFirstObjectByType<NetworkLobby>();
+            if (!lobby || !lobby.isSpawned || !manager.TryGetModule(out ScenesModule scenes, true) ||
+                !scenes.TryGetSceneID(gameObject.scene, out var scene) ||
+                !manager.TryGetModule(out ScenePlayersModule players, true) || !players.TryGetPlayersInScene(scene, out var existing)) return;
+            foreach (var player in existing) PlayerLoaded(player, scene, true);
+        }
+
         public override void Subscribe(NetworkManager network, bool asServer)
         {
             if (!asServer) return;
@@ -40,7 +50,8 @@ namespace ZZabmongus.Networking
             if (!asServer || !manager || !manager.TryGetModule(out ScenesModule scenes, true) || !scenes.TryGetSceneID(gameObject.scene, out var current) || current != scene || spawned.ContainsKey(player))
                 return;
 
-            if (lobby.InSession || spawned.Count >= lobby.Capacity)
+            if (!lobby || !lobby.isSpawned) return;
+            if (lobby.InSession || lobby.Loading || spawned.Count >= lobby.Capacity)
             {
                 manager.playerModule.KickPlayer(player);
                 return;
