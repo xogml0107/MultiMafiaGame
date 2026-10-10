@@ -26,6 +26,7 @@ namespace ZZabmongus.Networking
         private void ReceiveMatchInfo(PlayerID recipient, int revision, bool active, bool isMafia, bool isOriginal, bool hasSubmitted)
         {
             if (!isOwner || revision < privateRound) return;
+            if (revision != privateRound || !active) ClearDeviceState();
             if (revision != privateRound || !active) SubmissionMessage = "";
             privateRound = revision; receivedMatchInfo = active;
             mafia = active && isMafia; originalMafia = active && isOriginal; submitted = active && hasSubmitted;
@@ -61,6 +62,7 @@ namespace ZZabmongus.Networking
 
         private void ClearMatchInfo()
         {
+            ClearDeviceState();
             privateRound = 0; receivedMatchInfo = mafia = originalMafia = submitted = false;
             nextSubmissionAt = 0; SubmissionMessage = "";
         }

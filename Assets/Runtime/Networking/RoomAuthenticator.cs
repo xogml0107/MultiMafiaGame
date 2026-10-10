@@ -18,7 +18,7 @@ namespace ZZabmongus.Networking
 
     public sealed class RoomAuthenticator : AuthenticationBehaviour<RoomJoinPayload, RoomDenial>
     {
-        public const int Protocol = 3;
+        public const int Protocol = 4;
         private RoomJoinPayload clientPayload;
         private RoomAdmission admission;
         private NetworkLobby lobby;

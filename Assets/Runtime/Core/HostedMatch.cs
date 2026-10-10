@@ -15,6 +15,7 @@ namespace ZZabmongus.Core
         public int RemainingSeconds { get; }
         public int ActivityRemainingSeconds { get; }
         public int MissionPoints { get; }
+        public int NumberEpoch { get; }
         public IReadOnlyList<RuleId> Rules { get; }
 
         internal PublicMatchState(int round, MatchSession match)
@@ -29,12 +30,13 @@ namespace ZZabmongus.Core
             ActivityRemainingSeconds = Phase == MatchPhase.Playing ?
                 (int)Math.Ceiling(Math.Max(0, match.ActivityEndsAt - match.ElapsedSeconds)) : 0;
             MissionPoints = match.MissionPoints;
+            NumberEpoch = match.NumberEpoch;
             Rules = Array.AsReadOnly(match.ActiveRules.ToArray());
         }
     }
 
     /// <summary>Server-only lifecycle and command gate around the existing rules.</summary>
-    public sealed class HostedMatch
+    public sealed partial class HostedMatch
     {
         private MatchSession match;
         private HashSet<string> participants;
@@ -50,6 +52,7 @@ namespace ZZabmongus.Core
             var next = new MatchSession(playerIds, seed);
             match = next;
             participants = new HashSet<string>(next.PlayerIds, StringComparer.Ordinal);
+            ClearDevices();
             Round++;
         }
 
@@ -88,6 +91,7 @@ namespace ZZabmongus.Core
         public void End()
         {
             match = null; participants = null;
+            ClearDevices();
             // Invalidate delayed commands and owner-only messages from the previous round.
             Round++;
         }

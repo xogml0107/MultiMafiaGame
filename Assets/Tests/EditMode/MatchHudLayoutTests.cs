@@ -53,6 +53,16 @@ namespace ZZabmongus.Tests
                 var text = result.GetComponentsInChildren<TMP_Text>()[1]; text.rectTransform.GetWorldCorners(corners);
                 Assert.That(result.InverseTransformPoint(corners[0]).y, Is.GreaterThanOrEqualTo(result.rect.yMin));
                 Assert.That(text.richText, Is.False);
+                var notebook = (RectTransform)root.transform.Find("PrivateClueNotebook"); notebook.gameObject.SetActive(true);
+                Canvas.ForceUpdateCanvases(); UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(notebook);
+                var notebookScroll = notebook.GetComponentInChildren<UnityEngine.UI.ScrollRect>();
+                Assert.That(notebookScroll.viewport.GetComponent<UnityEngine.UI.Mask>(), Is.Not.Null);
+                Assert.That(notebookScroll.content.GetComponent<UnityEngine.UI.ContentSizeFitter>(), Is.Not.Null);
+                Assert.That(notebookScroll.content.GetComponentInChildren<TMP_Text>().richText, Is.False);
+                Assert.That(notebookScroll.viewport.rect.height, Is.GreaterThan(0));
+                ((RectTransform)notebookScroll.transform).GetWorldCorners(corners);
+                Assert.That(notebook.InverseTransformPoint(corners[0]).y, Is.GreaterThanOrEqualTo(notebook.rect.yMin));
+                Assert.That(notebook.InverseTransformPoint(corners[1]).y, Is.LessThanOrEqualTo(notebook.rect.yMax));
                 LogAssert.NoUnexpectedReceived();
             }
             finally { EditorSceneManager.ClosePreviewScene(preview); }

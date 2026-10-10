@@ -21,6 +21,8 @@ namespace ZZabmongus.Networking
         private readonly HostedMatch hostedMatch = new();
         private readonly Dictionary<string, (string Name, int Slot)> roster = new();
         private float nextStateAt;
+        private int publishedEpoch = -1;
+        private readonly Dictionary<int, InformationDeviceStation> mapDevices = new();
         public int Round => round.value;
         public MatchPhase Phase => (MatchPhase)phase.value;
         public ActivityPhase Activity => (ActivityPhase)activity.value;
@@ -94,6 +96,17 @@ namespace ZZabmongus.Networking
             var seed = new byte[4];
             using (var random = RandomNumberGenerator.Create()) random.GetBytes(seed);
             hostedMatch.Start(players.Select(p => p.owner.Value.ToString()), BitConverter.ToInt32(seed, 0));
+            mapDevices.Clear();
+            try
+            {
+                foreach (var station in InformationDeviceStation.ActiveStations()) mapDevices.Add(station.DeviceId, station);
+                hostedMatch.RegisterDevices(mapDevices.Values.Select(s => s.ServerDefinition));
+            }
+            catch (Exception)
+            {
+                EndSession("정보 장치 설정을 확인하지 못했습니다. 대기실로 돌아갑니다.");
+                SessionSceneFlow.Instance?.ReturnToWaiting(); return;
+            }
             roster.Clear();
             foreach (var player in players) roster.Add(player.owner.Value.ToString(), (player.DisplayName, player.Slot));
             notice.value = ""; results.value = "";
@@ -128,13 +141,55 @@ namespace ZZabmongus.Networking
             elapsed.value = state.ElapsedSeconds; remaining.value = state.RemainingSeconds;
             activityRemaining.value = state.ActivityRemainingSeconds; points.value = state.MissionPoints; participants.value = state.PlayerCount;
             rules.value = state.Rules.Aggregate(0, (mask, rule) => mask | (1 << (int)rule));
+            if (publishedEpoch != state.NumberEpoch)
+            {
+                publishedEpoch = state.NumberEpoch;
+                foreach (var player in Players) PublishNotebook(player);
+            }
             if (state.Phase == MatchPhase.Results && string.IsNullOrEmpty(results.value)) PublishResults();
         }
 
         private void PublishOwnerState(NetworkPlayer player)
         {
             if (player && player.owner.HasValue && hostedMatch.TryGetOwnerView(player.owner.Value.ToString(), out var view))
+            {
                 player.SendMatchInfo(hostedMatch.Round, view);
+                PublishNotebook(player);
+            }
+        }
+
+        private void PublishNotebook(NetworkPlayer player)
+        {
+            if (!player || !player.owner.HasValue || !hostedMatch.TryGetOwnerView(player.owner.Value.ToString(), out var view)) return;
+            var notes = view.Clues.Select(clue => new DeviceClueNote
+            {
+                text = clue.Kind == DeviceKind.Parity && clue.IsEven.HasValue ?
+                    (clue.SubjectId == view.Id ? "내 번호는 " : (roster.TryGetValue(clue.SubjectId, out var subject) ? subject.Name : "참가자") + "의 번호는 ") +
+                    (clue.IsEven.Value ? "짝수입니다." : "홀수입니다.") : clue.Text,
+                observedSeconds = (int)clue.ObservedAt, numberEpoch = clue.NumberEpoch, isPublic = clue.IsPublic
+            }).ToArray();
+            player.SendNotebook(hostedMatch.Round, hostedMatch.PublicState.NumberEpoch, (float)hostedMatch.CooldownRemaining(view.Id), notes);
+        }
+
+        internal void InspectDevice(NetworkPlayer player, int expectedRound, int deviceId)
+        {
+            if (!isServer || !player || !player.owner.HasValue || !Players.Contains(player)) return;
+            if (Loading || !InSession || !mapDevices.TryGetValue(deviceId, out var station) || !station || !station.isActiveAndEnabled ||
+                station.gameObject.scene != UnityEngine.SceneManagement.SceneManager.GetActiveScene())
+            { player.SendDeviceResponse(Round, "지금은 이 장치를 사용할 수 없습니다."); return; }
+            if (Mathf.Abs(player.transform.position.y - station.transform.position.y) > 1.5f || !station.HasClearPath(player))
+            { player.SendDeviceResponse(Round, "장치 앞의 장애물을 피해 더 가까이 가세요."); return; }
+            foreach (var avatar in Players)
+                if (avatar.owner.HasValue)
+                    hostedMatch.SetPlayerPosition(avatar.owner.Value.ToString(), new Position(avatar.transform.position.x, avatar.transform.position.z));
+            var accepted = hostedMatch.TryInspect(player.owner.Value.ToString(), expectedRound, deviceId, out var message);
+            if (accepted)
+            {
+                PublishPublicState();
+                // Each target receives only their own view, including explicitly public rule results.
+                foreach (var avatar in Players) PublishNotebook(avatar);
+            }
+            player.SendDeviceResponse(Round, message);
         }
 
         internal void SubmitFinal(NetworkPlayer player, int expectedRound, int number, int suspectSlot)
@@ -188,6 +243,7 @@ namespace ZZabmongus.Networking
         {
             round.value = hostedMatch.Round; phase.value = activity.value = elapsed.value = remaining.value = activityRemaining.value = points.value = rules.value = participants.value = 0;
             results.value = "";
+            publishedEpoch = -1; mapDevices.Clear();
         }
     }
 }

@@ -34,8 +34,11 @@ namespace ZZabmongus.Core
         public double ObservedAt { get; }
         public int NumberEpoch { get; }
         public bool IsPublic { get; }
-        internal Clue(string text, double time, int epoch, bool isPublic)
-        { Text = text; ObservedAt = time; NumberEpoch = epoch; IsPublic = isPublic; }
+        public DeviceKind Kind { get; }
+        public string SubjectId { get; }
+        public bool? IsEven { get; }
+        internal Clue(string text, double time, int epoch, bool isPublic, DeviceKind kind, string subjectId, bool? isEven)
+        { Text = text; ObservedAt = time; NumberEpoch = epoch; IsPublic = isPublic; Kind = kind; SubjectId = subjectId; IsEven = isEven; }
     }
 
     /// <summary>Owner-only view. Never contains the hidden number or other players' factions.</summary>

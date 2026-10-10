@@ -33,6 +33,7 @@ namespace ZZabmongus.Editor
             if (!File.Exists(LobbyPath)) CreateScene(LobbyPath, SessionScreen.Lobby, session);
             if (!File.Exists(WaitingPath)) CreateScene(WaitingPath, SessionScreen.WaitingRoom, null);
             if (!File.Exists(GamePath)) CreateScene(GamePath, SessionScreen.Game, null);
+            InformationDeviceSetup.ConfigureGameScene();
             var retained = EditorBuildSettings.scenes.Where(s => !ScenePaths.Contains(s.path));
             EditorBuildSettings.scenes = ScenePaths.Select(path => new EditorBuildSettingsScene(path, true)).Concat(retained).ToArray();
             EditorSceneManager.OpenScene(LobbyPath);
@@ -106,6 +107,7 @@ namespace ZZabmongus.Editor
                     Box(map.transform, "Cargo B", new Vector3(6,0.6f,-4), new Vector3(2,1.2f,2), "MultiplayerWalls");
                 }
                 new GameObject(screen == SessionScreen.WaitingRoom ? "WaitingRoomUI" : "GameUI", typeof(MultiplayerHud));
+                if (screen == SessionScreen.Game) InformationDeviceSetup.ConfigureScene(scene);
             }
             if (!EditorSceneManager.SaveScene(scene, path)) throw new InvalidOperationException("Could not save " + path);
         }

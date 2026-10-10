@@ -280,7 +280,7 @@ namespace ZZabmongus.Core
             }
             var isPublic = (kind == DeviceKind.Parity && rules.Contains(RuleId.PublicParity)) ||
                 (kind == DeviceKind.Compare && rules.Contains(RuleId.PublicComparisons));
-            var record = new Clue(clue, ElapsedSeconds, NumberEpoch, isPublic);
+            var record = new Clue(clue, ElapsedSeconds, NumberEpoch, isPublic, kind, p.Id, kind == DeviceKind.Parity ? p.Number % 2 == 0 : (bool?)null);
             MissionPoints -= cost;
             p.DeviceReadyAt = ElapsedSeconds + config.DeviceCooldown;
             if (isPublic) foreach (var player in players) player.Clues.Add(record);

@@ -47,6 +47,7 @@ namespace ZZabmongus.Networking
             Text(resultPanel.transform, "최종 결과", 30, 56);
             resultText = Text(resultPanel.transform, "", 22, 650);
             resultText.richText = false;
+            BuildDeviceHud(canvas);
             matchPanel.SetActive(false); resultPanel.SetActive(false); answerControls.SetActive(false);
         }
 
@@ -92,6 +93,7 @@ namespace ZZabmongus.Networking
         {
             var visible = lobby.InSession && !lobby.Loading && connection.Connected;
             matchPanel.SetActive(visible); resultPanel.SetActive(visible && lobby.Phase == MatchPhase.Results);
+            RefreshDeviceHud(visible);
             if (!visible) { optionsRound = -1; return; }
             var local = NetworkPlayer.Local;
             matchRole.text = local && local.HasMatchInfo ?

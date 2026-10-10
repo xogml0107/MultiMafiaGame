@@ -78,6 +78,7 @@ namespace ZZabmongus.Networking
             if (isOwner)
             {
                 Local = this;
+                UpdateDeviceInput();
                 if (!profileSent && lobby && !lobby.InSession && !lobby.Loading)
                 {
                     profileSent = true;
@@ -108,15 +109,20 @@ namespace ZZabmongus.Networking
 
         private static Vector2 ReadInput()
         {
-            var selected = EventSystem.current ? EventSystem.current.currentSelectedGameObject : null;
-            if (selected && selected.activeInHierarchy &&
-                (selected.GetComponent<TMP_InputField>() || selected.GetComponentInParent<TMP_Dropdown>())) return Vector2.zero;
+            if (UiConsumesKeyboard()) return Vector2.zero;
             var keyboard = Keyboard.current;
             if (keyboard == null) return Vector2.zero;
 
             return Vector2.ClampMagnitude(new Vector2(
                 (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed ? 1 : 0) - (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed ? 1 : 0),
                 (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed ? 1 : 0) - (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed ? 1 : 0)), 1);
+        }
+
+        private static bool UiConsumesKeyboard()
+        {
+            var selected = EventSystem.current ? EventSystem.current.currentSelectedGameObject : null;
+            return selected && selected.activeInHierarchy &&
+                (selected.GetComponent<TMP_InputField>() || selected.GetComponentInParent<TMP_Dropdown>());
         }
 
         [ServerRpc(channel: Channel.Unreliable)]
